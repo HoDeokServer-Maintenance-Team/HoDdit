@@ -50,7 +50,8 @@ async def get_popular_article(bot: commands.Bot):
             for c in get_bot_setting("redditpostchannels"):
                 ann.append(bot.get_guild(518791611048525852).get_channel(c))
             for a in ann:
-                await a.send(s.url)
+                await a.send("https://www.reddit.com" + s.permalink)
+                await a.send()
         await db.commit()
 
 async def confirm(bot: commands.Bot, ctx: commands.Context, msg: discord.Message, time: int = 30):
