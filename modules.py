@@ -42,7 +42,7 @@ async def get_popular_article(bot: commands.Bot):
             if s.score < 1000:
                 continue
             async with db.execute("SELECT COUNT(*) FROM populararticle WHERE id=?", (s.id,)) as cursor:
-                if cursor.fetchone()[0] > 0:
+                if (await cursor.fetchone())[0] > 0:
                     continue
 
             await db.execute("INSERT INTO populararticle VALUES (?, ?)", (s.id, s.created_utc))
