@@ -38,7 +38,7 @@ async def get_popular_article(bot: commands.Bot):
         await db.commit()
         await db.execute("DELETE FROM populararticle WHERE timestamp < ?", (time.time() - 86705,))
         await db.commit()
-        async for s in subreddit.top(t="day"):
+        async for s in subreddit.top("day"):
             if s.score < 1000:
                 continue
             async with db.execute("SELECT COUNT(*) FROM populararticle WHERE id=?", (s.id,)) as cursor:
