@@ -1,16 +1,15 @@
 import json
 import asyncio
-import aiohttp
 import discord
 import aiosqlite
-import datetime
-from operator import eq
 import asyncpraw
+import time
 
 from discord.ext import commands
 
 bot = None
 reddit = None
+subreddit = None
 
 def get_bot_setting(key):
     with open("bot_settings.json", "r", encoding="UTF-8") as f:
@@ -30,10 +29,29 @@ def update_bot_setting(key, val):
 
 async def update_task(bot: commands.Bot):
     while True:
-        await get_new_article(bot)
         await get_popular_article(bot)
         await asyncio.sleep(300)
 
+async def get_popular_article(bot: commands.Bot):
+    async with aiosqlite.connect('article.db') as db:
+        await db.execute("CREATE TABLE IF NOT EXISTS populararticle (id INTEGER NOT NULL UNIQUE, timestamp INTEGER NOT NULL)")
+        await db.commit()
+        await db.execute("DELETE FROM populararticle WHERE timestamp < ?", (time.time() - 86705,))
+        await db.commit()
+        async for s in subreddit.top(t="day"):
+            if s.score < 1000:
+                continue
+            async with db.execute("SELECT COUNT(*) FROM populararticle WHERE id=?", (s.id,)) as cursor:
+                if cursor.fetchone()[0] > 0:
+                    continue
+
+            await db.execute("INSERT INTO populararticle VALUES (?, ?)", (s.id, s.created_utc))
+            ann = []
+            for c in get_bot_setting("redditpostchannels"):
+                ann.append(bot.get_guild(518791611048525852).get_channel(c))
+            for a in ann:
+                await a.send(s.permalink)
+        await db.commit()
 
 async def confirm(bot: commands.Bot, ctx: commands.Context, msg: discord.Message, time: int = 30):
     emoji_list = ["⭕", "❌"]
@@ -52,10 +70,14 @@ async def confirm(bot: commands.Bot, ctx: commands.Context, msg: discord.Message
     except asyncio.TimeoutError:
         return None
 
-def reddit_session():
+async def reddit_session():
     d = get_bot_setting("reddit")
-    return asyncpraw.Reddit(client_id=d["client_id"],
+    global reddit
+    reddit = asyncpraw.Reddit(client_id=d["client_id"],
                      client_secret=d["client_secret"],
                      username=d["username"],
                      password=d["password"],
                      user_agent="HoDdit by /u/Penta0308")
+    reddit.read_only = True
+    global subreddit
+    subreddit = await reddit.subreddit("KerbalSpaceProgram")

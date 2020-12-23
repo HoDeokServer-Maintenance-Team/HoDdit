@@ -34,7 +34,6 @@ except ImportError:
 nest_asyncio.apply()
 
 redditbot_working = False
-# init_flag = True
 
 modules.bot = commands.Bot(command_prefix="!", help_command=None)
 
@@ -52,11 +51,6 @@ def is_dm(ctx):
 async def on_ready():
     print("running")
     await modules.bot.change_presence(activity=discord.Game(modules.get_bot_setting("presence")))
-    # global init_flag
-    # if init_flag:
-    #    init_flag = False
-    #    print("calling __ai_update()")
-    #    await __ai_update(None)
     global redditbot_working
     if not redditbot_working:
         redditbot_working = True
@@ -76,7 +70,7 @@ async def _new_article(ctx):
     res = await modules.confirm(modules.bot, ctx, msg)
     if res is not True:
         return await msg.edit(content="수동 업데이트를 취소했습니다.")
-    await modules.get_new_article(modules.bot)
+    await modules.get_popular_article(modules.bot)
     await msg.edit(content="업데이트 완료")
 
 @modules.bot.event
@@ -87,7 +81,7 @@ async def on_command_error(ctx, error):
 
 loop = asyncio.get_event_loop()
 
-reddit = modules.reddit_session()
+reddit = loop.run_until_complete(modules.reddit_session())
 
 print('trying to run the bot')
 modules.bot.run(modules.get_bot_setting("token"))
