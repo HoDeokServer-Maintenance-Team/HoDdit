@@ -36,12 +36,12 @@ async def get_popular_article(bot: commands.Bot):
     async with aiosqlite.connect('article.db') as db:
         await db.execute("CREATE TABLE IF NOT EXISTS populararticle (id INTEGER NOT NULL UNIQUE, timestamp INTEGER NOT NULL)")
         await db.commit()
-        await db.execute("DELETE FROM populararticle WHERE timestamp < ?", (time.time() - 86705,))
+        await db.execute("DELETE FROM populararticle WHERE timestamp < ?", (time.time() - 605105,))
         await db.commit()
         async for s in subreddit.top("day"):
             if s.score < 1000:
                 continue
-            async with db.execute("SELECT COUNT(*) FROM populararticle WHERE id=?", (s.id,)) as cursor:
+            async with db.execute("SELECT COUNT(*) FROM populararticle WHERE id = ?", (s.id,)) as cursor:
                 if (await cursor.fetchone())[0] > 0:
                     continue
 
