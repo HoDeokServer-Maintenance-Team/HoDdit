@@ -42,7 +42,7 @@ async def update_loop(bot: commands.Bot):
 
 
 def update_task(bot: commands.Bot):
-    asyncio.get_event_loop().run_until_complete(update_loop(bot))
+    asyncio.run(update_loop(bot))
 
 
 async def get_popular_article(bot: commands.Bot):
