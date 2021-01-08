@@ -33,7 +33,7 @@ def update_bot_setting(key, val):
 async def update_loop(bot: commands.Bot):
     while True:
         try:
-            await asyncio.sleep(30)
+            await asyncio.sleep(300)
             await get_popular_article(bot)
         except InterruptedError:
             break
