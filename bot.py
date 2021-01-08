@@ -4,7 +4,6 @@ import discord
 import asyncio
 from discord.ext import commands
 import nest_asyncio
-from threading import Thread
 
 nest_asyncio.apply()
 
@@ -21,8 +20,6 @@ def is_dm(ctx):
 async def on_ready():
     print("running")
     await modules.bot.change_presence(activity=discord.Game(modules.get_bot_setting("presence")))
-    if not redditbot_thread.is_alive():
-        redditbot_thread.start()
 
 @modules.bot.command(name="핑")
 async def _ping(ctx):
@@ -50,8 +47,7 @@ loop = asyncio.get_event_loop()
 
 reddit = loop.run_until_complete(modules.reddit_session())
 
-redditbot_thread = Thread(target=modules.update_task, args=(modules.bot,))
-redditbot_thread.setDaemon(True)
+modules.update_task(modules.bot)
 
 print('trying to run the bot')
 modules.bot.run(modules.get_bot_setting("token"))
