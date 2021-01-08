@@ -1,61 +1,28 @@
-import datetime
-import html
-import re
-
-import aiosqlite
-import asyncpraw
-
 import modules
 
-try:
-    import os
-    import nest_asyncio
-    import discord
-    import asyncio
-    import aiohttp
-    import json
-    from discord.ext import commands
-    from operator import eq
-    import nest_asyncio
-    from aiohttp import web
-except ImportError:
-    import os
-
-    os.system("pip install -r requirements.txt")
-    import nest_asyncio
-    import discord
-    import asyncio
-    import aiohttp
-    import json
-    from discord.ext import commands
-    from operator import eq
-    from aiohttp import web
+import discord
+import asyncio
+from discord.ext import commands
+import nest_asyncio
+from threading import Thread
 
 nest_asyncio.apply()
 
-redditbot_working = False
-
 modules.bot = commands.Bot(command_prefix="!", help_command=None)
-
 
 def is_authorized(ctx):
     return modules.bot.get_guild(518791611048525852).get_role(
         721776076430377142) in ctx.author.roles or ctx.author.id == 278170182227066880
 
-
 def is_dm(ctx):
     return isinstance(ctx.channel, discord.channel.DMChannel)
-
 
 @modules.bot.event
 async def on_ready():
     print("running")
     await modules.bot.change_presence(activity=discord.Game(modules.get_bot_setting("presence")))
-    global redditbot_working
-    if not redditbot_working:
-        redditbot_working = True
-        await asyncio.create_task(modules.update_task(modules.bot))
-
+    if not redditbot_thread.is_alive():
+        redditbot_thread.start()
 
 @modules.bot.command(name="핑")
 async def _ping(ctx):
@@ -82,6 +49,9 @@ async def on_command_error(ctx, error):
 loop = asyncio.get_event_loop()
 
 reddit = loop.run_until_complete(modules.reddit_session())
+
+redditbot_thread = Thread(target=modules.update_task, args=(modules.bot,))
+redditbot_thread.setDaemon(True)
 
 print('trying to run the bot')
 modules.bot.run(modules.get_bot_setting("token"))
