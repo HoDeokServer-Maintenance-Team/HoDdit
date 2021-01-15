@@ -58,7 +58,5 @@ loop = asyncio.get_event_loop()
 
 reddit = loop.run_until_complete(modules.reddit_session())
 
-modules.update_task(modules.bot)
-
 print('trying to run the bot')
 modules.bot.run(modules.get_bot_setting("token"))
