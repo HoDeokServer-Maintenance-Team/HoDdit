@@ -2,7 +2,7 @@ import modules
 
 import discord
 import asyncio
-from discord.ext import commands
+from discord.ext import commands, tasks
 import nest_asyncio
 
 nest_asyncio.apply()
@@ -36,6 +36,17 @@ async def _new_article(ctx):
         return await msg.edit(content="수동 업데이트를 취소했습니다.")
     await modules.get_popular_article(modules.bot)
     await msg.edit(content="업데이트 완료")
+
+
+@tasks.loop(minutes=5)
+async def _update():
+    await modules.update_task()
+
+
+@_update.before_loop
+async def _update_before():
+    await modules.bot.wait_until_ready()
+
 
 @modules.bot.event
 async def on_command_error(ctx, error):

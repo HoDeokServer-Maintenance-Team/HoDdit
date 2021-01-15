@@ -30,19 +30,14 @@ def update_bot_setting(key, val):
         json.dump(settings, f, indent=4, ensure_ascii=False)
 
 
-async def update_loop(bot: commands.Bot):
+async def update_task():
     while True:
         try:
-            await asyncio.sleep(300)
             await get_popular_article(bot)
         except KeyboardInterrupt:
             break
         except:
             continue
-
-
-def update_task(bot: commands.Bot):
-    asyncio.ensure_future(update_loop(bot))
 
 
 async def get_popular_article(bot: commands.Bot):
