@@ -35,7 +35,7 @@ async def update_loop(bot: commands.Bot):
         try:
             await asyncio.sleep(300)
             await get_popular_article(bot)
-        except InterruptedError:
+        except KeyboardInterrupt:
             break
         except:
             continue
