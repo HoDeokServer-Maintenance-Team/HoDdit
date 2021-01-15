@@ -39,12 +39,12 @@ async def _new_article(ctx):
 
 
 @tasks.loop(minutes=5)
-async def _update():
+async def update_loop():
     await modules.update_task()
 
 
-@_update.before_loop
-async def _update_before():
+@update_loop.before_loop
+async def update_loop_before():
     await modules.bot.wait_until_ready()
 
 

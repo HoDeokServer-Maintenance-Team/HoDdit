@@ -31,13 +31,7 @@ def update_bot_setting(key, val):
 
 
 async def update_task():
-    while True:
-        try:
-            await get_popular_article(bot)
-        except KeyboardInterrupt:
-            break
-        except:
-            continue
+    await get_popular_article(bot)
 
 
 async def get_popular_article(bot: commands.Bot):
